@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="alb.project.vacation.mapper.HolidayApprovalMapper">
+
+    <resultMap type="alb.project.vacation.domain.HolidayApproval" id="HolidayApprovalMap">
+        <id column="holiday_approval_id" jdbcType="BIGINT" property="holidayApprovalId"/>
+        <result column="holiday_type_id" jdbcType="BIGINT" property="holidayTypeId"/>
+        <result column="dict_label" property="typeName"/>
+        <result column="dict_value" property="typeValue"/>
+        <result column="role_id" jdbcType="BIGINT" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="approved_role_id" jdbcType="BIGINT" property="approvedRoleId"/>
+        <result column="approved_role_name" property="approvedRoleName"/>
+        <result column="current_approved_index" property="currentApprovedIndex"/>
+        <result column="next_approval_id" jdbcType="BIGINT" property="nextApprovalId"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!--Querying the Role List-->
+    <select id="selectRoleList" resultType="alb.project.system.domain.SysRole">
+        select r.role_id as roleId,
+               r.role_name as roleName
+        from sys_role r
+        where r.role_name != 'admin'
+        order by r.role_sort
+    </select>
+
+    <!--Queries whether the next entity is created-->
+    <select id="hasNext" resultType="java.lang.Long">
+        select ha.next_approval_id
+        from holiday_approval ha
+                 left join sys_dict_data s on s.dict_type = 'holiday_type' and ha.holiday_type_id = s.dict_code
+        where ha.holiday_type_id = #{holidayTypeId}
+          and ha.role_id = #{roleId}
+          and ha.current_approved_index = #{currentApprovedIndex}
+        limit 1
+    </select>
+
+    <!--Querying a single entity-->
+    <select id="queryOne" resultMap="HolidayApprovalMap">
+        select ha.holiday_approval_id,
+               ha.holiday_type_id,
+               s.dict_label,
+               s.dict_value,
+               ha.role_id,
+               (select r.role_name from sys_role r where ha.role_id = r.role_id) as role_name,
+               ha.approved_role_id,
+               (select r.role_name from sys_role r where ha.approved_role_id = r.role_id) as approved_role_name,
+               ha.current_approved_index,
+               ha.next_approval_id
+        from holiday_approval ha
+                 left join sys_dict_data s on s.dict_type = 'holiday_type' and ha.holiday_type_id = s.dict_code
+        where ha.holiday_approval_id = #{holidayApprovalId}
+          limit 1
+    </select>
+
+    <!--Querying multiple entities-->
+    <select id="queryAll" resultMap="HolidayApprovalMap">
+        select ha.holiday_approval_id,
+        ha.holiday_type_id,
+        s.dict_label,
+        s.dict_value,
+        ha.role_id,
+        (select r.role_name from sys_role r where ha.role_id = r.role_id) as role_name,
+        ha.approved_role_id,
+        (select r.role_name from sys_role r where ha.approved_role_id = r.role_id) as approved_role_name,
+        ha.current_approved_index,
+        ha.next_approval_id
+        from holiday_approval ha
+        left join sys_dict_data s on s.dict_type = 'holiday_type' and ha.holiday_type_id = s.dict_code
+        where ha.holiday_type_id = #{holidayTypeId}
+        <if test="roleId != null">
+            and ha.role_id = #{roleId}
+        </if>
+        <if test="currentApprovedIndex != null">
+            and ha.current_approved_index = #{currentApprovedIndex}
+        </if>
+        order by current_approved_index
+    </select>
+
+    <insert id="insert" parameterType="HolidayApproval">
+        insert into holiday_approval
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="holidayApprovalId != null">
+                holiday_approval_id,
+            </if>
+            <if test="holidayTypeId != null">
+                holiday_type_id,
+            </if>
+            <if test="roleId != null">
+                role_id,
+            </if>
+            <if test="approvedRoleId != null">
+                approved_role_id,
+            </if>
+            <if test="currentApprovedIndex != null">
+                current_approved_index,
+            </if>
+            <if test="nextApprovalId != null">
+                next_approval_id,
+            </if>
+            <if test="createBy != null">
+                create_by,
+            </if>
+                create_time,
+            <if test="updateBy != null">
+                update_by,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="holidayApprovalId != null">
+                #{holidayApprovalId},
+            </if>
+            <if test="holidayTypeId != null">
+                #{holidayTypeId},
+            </if>
+            <if test="roleId != null">
+                #{roleId},
+            </if>
+            <if test="approvedRoleId != null">
+                #{approvedRoleId},
+            </if>
+            <if test="currentApprovedIndex != null">
+                #{currentApprovedIndex},
+            </if>
+            <if test="nextApprovalId != null">
+                #{nextApprovalId},
+            </if>
+            <if test="createBy != null">
+                #{createBy},
+            </if>
+                sysdate(),
+            <if test="updateBy != null">
+                #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+        </trim>
+    </insert>
+
+    <!--Modify data by primary key-->
+    <update id="update" parameterType="HolidayApproval">
+        update holiday_approval
+        <set>
+            <if test="currentApprovedIndex != null">
+                current_approved_index = #{currentApprovedIndex},
+            </if>
+            <if test="nextApprovalId != null">
+                next_approval_id = #{nextApprovalId},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            update_time = sysdate()
+        </set>
+        where holiday_approval_id = #{holidayApprovalId}
+    </update>
+
+    <!--Delete by primary key-->
+    <delete id="deleteById">
+        delete from holiday_approval
+        where holiday_approval_id = #{holidayApprovalId}
+    </delete>
+
+</mapper>

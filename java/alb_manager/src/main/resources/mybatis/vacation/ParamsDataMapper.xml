@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="alb.project.vacation.mapper.ParamsDataMapper">
+    <resultMap type="ParamsData" id="ParamsDataResult">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="value" column="value"/>
+        <result property="type" column="type"/>
+        <result property="groupType" column="group_type"/>
+        <result property="lastDate" column="last_date"/>
+    </resultMap>
+
+    <sql id="selectParamsDataVo">
+        select id, name, value, type,group_type, last_date
+        from params_data
+    </sql>
+
+    <select id="selectParamsDataList" parameterType="ParamsData" resultMap="ParamsDataResult">
+        <include refid="selectParamsDataVo"/>
+        <where>
+            <if test="name != null  and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+            <if test="lastDate != null">
+                and last_date = #{lastDate}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectParamsDataById" parameterType="Long" resultMap="ParamsDataResult">
+        <include refid="selectParamsDataVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertParamsData" parameterType="ParamsData" useGeneratedKeys="true" keyProperty="id">
+        insert into params_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                name,
+            </if>
+            <if test="value != null and value != ''">
+                value,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="groupType != null">
+                group_type,
+            </if>
+            <if test="lastDate != null">
+                last_date,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                #{name},
+            </if>
+            <if test="value != null and value != ''">
+                #{value},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="groupType != null">
+                #{groupType},
+            </if>
+            <if test="lastDate != null">
+                #{lastDate},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateParamsData" parameterType="ParamsData">
+        update params_data
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="value != null and value != ''">
+                value = #{value},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="groupType != null">
+                group_type = #{groupType},
+            </if>
+            <if test="lastDate != null">
+                last_date = #{lastDate},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteParamsDataById" parameterType="Long">
+        delete
+        from params_data
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteParamsDataByIds" parameterType="String">
+        delete
+        from params_data where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

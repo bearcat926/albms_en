@@ -1,0 +1,155 @@
+# Project Configuration
+wlwq:
+  # The name of the
+  name: glasses
+  # version
+  version: 0.0.1
+  # The copyright year
+  copyrightYear: 2020
+  # Example switch
+  demoEnabled: false
+  # The file path
+  profile: /mnt/uploadPath
+#  profile: D:/wlwq/uploadPath
+  # To obtainipAddress of the switch
+  addressEnabled: false
+
+# Development Environment Configuration
+server:
+  # The server'sHTTPport,The default is8080
+  port: 8200
+  servlet:
+    # Application access path
+    context-path: /
+  tomcat:
+    # tomcattheURIcoding
+    uri-encoding: UTF-8
+    # tomcatMaximum number of threads,The default is200
+    max-threads: 800
+    # TomcatNumber of threads that started initialization,The default value25
+    min-spare-threads: 30
+
+# The log configuration
+logging:
+  level:
+    alb: error
+    org.springframework: error
+
+# Springconfiguration
+spring:
+  # Resource information
+  messages:
+    # Internationalization resource file path
+    basename: i18n/messages
+  profiles:
+    active: druid
+  # File upload
+  servlet:
+    multipart:
+      # Single file size
+      max-file-size:  10MB
+      # Set the total uploaded file size
+      max-request-size:  20MB
+  # Service module
+  devtools:
+    restart:
+      # Hot deployment switch
+      enabled: true
+  # redis configuration
+  redis:
+    # address
+    host: 39.101.66.18
+    # port,The default is6379
+    port: 6379
+    # password
+#    password: p@s5w0rd
+    password: 123456
+    # Connection timeout
+    timeout: 10s
+    lettuce:
+      pool:
+        # Minimum free connection in connection pool
+        min-idle: 0
+        # Maximum number of free connections in the connection pool
+        max-idle: 8
+        # The maximum number of database connections in the connection pool
+        max-active: 8
+        # #Maximum waiting time for connection pool blocking(Using negative values means there is no limit)
+        max-wait: -1ms
+
+# Incoming pool queue consumer acceptance cycle(seconds)
+#incomingPool:
+#  delay: 10
+
+# tokenconfiguration
+token:
+  # Token custom identification
+  header: Authorization
+  # The token key
+  secret: Renbowen
+  # Token validity(The default30minutes)
+  expireTime: 600
+
+# MyBatisconfiguration
+mybatis:
+  # Searches for the specified package alias
+  typeAliasesPackage: alb.project.**.domain
+  # configurationmapperThe scan,Find allmapper.xmlThe mapping file
+  mapperLocations: classpath*:mybatis/**/*Mapper.xml
+  # Load the global configuration file
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+# PageHelperPaging plug-in
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+# Swaggerconfiguration
+swagger:
+  # Whether openswagger
+  enabled: true
+  # Request the prefix
+  pathMapping: /dev-api
+
+# To preventXSSattack
+xss:
+  # Filter switch
+  enabled: true
+  # Rule out links(Separate multiple entries with commas)
+  excludes: /system/notice/*
+  # Match the link
+  urlPatterns: /system/*,/monitor/*,/tool/*,/vacation/*
+
+# Code generation
+gen:
+  # The author
+  author: Renbowen
+  # Default generated package path system Change the module name to your own Such as system monitor tool
+  packageName: alb.project.vacation
+  # Automatically removes table prefixes,The default istrue
+  autoRemovePre: false
+  # The table prefix(生成类名不会包含The table prefix,Separate multiple entries with commas)
+  tablePrefix: sys_
+
+# Configure plaintext password encryption for files
+#jasypt:
+#  encryptor:
+#    password: Renbowen # Custom encryption key
+#    property:
+#      prefix: Renbowen( # User-defined encryption prefix
+#      suffix: ) # Customize encryption suffixes
+#    bean: codeSheepEncryptorBean # Custom encryptor
+
+# Aliyun SMS template
+aliyunSms:
+  templateRegist: SMS_148375326 # registered
+  templateUpdatePassword: SMS_148375325 # Change the password
+  templateInformationChange: SMS_148375324 # Information changes
+  templateAuthentication: SMS_148375329 # The authentication
+  templateLoginVerify: SMS_148375328 # The login confirmation
+  templateLoginException: SMS_148375327 # Abnormal login
+
+# H5Share links
+shareUrl: https://mini.milido.cn/api/page?sourceType=

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <settings>
+        <setting name="cacheEnabled" value="true"/>  <!-- The global mapper enables caching -->
+        <setting name="useGeneratedKeys" value="true"/>  <!-- allow JDBC Supports automatic primary key generation -->
+        <setting name="defaultExecutorType" value="REUSE"/> <!-- Configure the default actuator -->
+        <setting name="logImpl" value="SLF4J"/> <!-- The specified MyBatis A concrete implementation of the log used -->
+        <setting name="callSettersOnNulls" value="true"/> <!-- The specified MyBatis mapReturns empty data -->
+        <!-- <setting name="mapUnderscoreToCamelCase" value="true"/>  Hump naming -->
+    </settings>
+
+</configuration>

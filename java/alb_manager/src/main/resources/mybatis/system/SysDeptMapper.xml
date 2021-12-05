@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="alb.project.system.mapper.SysDeptMapper">
+    <resultMap type="SysDept" id="SysDeptResult">
+        <id property="deptId" column="dept_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="ancestors" column="ancestors"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="deptCode" column="dept_code"/>
+        <result property="deptPhone" column="dept_phone"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="leader" column="leader"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="province" column="province"/>
+        <result property="city" column="city"/>
+        <result property="district" column="district"/>
+        <result property="address" column="address"/>
+        <result property="deptType" column="dept_type"/>
+        <result property="type" column="type"/>
+        <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="parentName" column="parent_name"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="longitude" column="longitude"/>
+        <result property="latitude" column="latitude"/>
+    </resultMap>
+
+    <sql id="selectDeptVo">
+        select d.dept_id,
+               d.parent_id,
+               d.ancestors,
+               d.longitude,
+               d.latitude,
+               d.dept_name,
+               d.dept_code,
+               d.dept_phone,
+               d.province,
+               d.city,
+               d.district,
+               d.address,
+               d.order_num,
+               d.leader,
+               d.phone,
+               d.email,
+               d.dept_type,
+               d.type,
+               d.status,
+               d.del_flag,
+               d.create_by,
+               d.create_time
+        from sys_dept d
+    </sql>
+
+    <select id="selectDeptList" parameterType="SysDept" resultMap="SysDeptResult">
+        select d.dept_id,
+                d.parent_id,
+                d.ancestors,
+                d.longitude,
+                d.latitude,
+                d.dept_name,
+                d.dept_code,
+                d.dept_phone,
+                d.province,
+                d.city,
+                d.district,
+                d.address,
+                d.order_num,
+                d.leader,
+                d.phone,
+                d.email,
+                d.dept_type,
+                d.type,
+                d.status,
+                d.del_flag,
+                d.create_by,
+                d.create_time
+        from sys_dept d
+        where d.del_flag = '0'
+        <if test="parentId != null and parentId != 0">
+            AND d.parent_id = #{parentId}
+        </if>
+        <if test="deptType != null and deptType != 0">
+            AND d.dept_type = #{deptType}
+        </if>
+        <if test="type != null">
+            AND d.type = #{type}
+        </if>
+        <if test="deptName != null and deptName != ''">
+            AND (d.dept_name like concat('%', #{deptName}, '%') or d.dept_code like concat('%', #{deptName}, '%'))
+        </if>
+        <if test="deptPhone != null  and deptPhone != ''">
+            and d.dept_phone like concat('%', #{deptPhone}, '%')
+        </if>
+        <if test="leader != null  and leader != ''">
+            and d.leader like concat('%', #{leader}, '%')
+        </if>
+        <if test="phone != null  and phone != ''">
+            and d.phone like concat('%', #{phone}, '%')
+        </if>
+        <if test="email != null  and email != ''">
+            and d.email like concat('%', #{email}, '%')
+        </if>
+        <if test="province != null  and province != ''">
+            and d.province like concat('%', #{province}, '%')
+        </if>
+        <if test="city != null  and city != ''">
+            and d.city like concat('%', #{city}, '%')
+        </if>
+        <if test="district != null  and district != ''">
+            and d.district like concat('%', #{district}, '%')
+        </if>
+        <if test="address != null  and address != ''">
+            and d.address like concat('%', #{address}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND d.status = #{status}
+        </if>
+        <if test="longitude != null  and longitude != ''"> and longitude = #{longitude}</if>
+        <if test="latitude != null  and latitude != ''"> and latitude = #{latitude}</if>
+        <!-- Data range filtering -->
+        ${params.dataScope}
+        order by d.parent_id desc , d.order_num desc
+    </select>
+
+    <select id="selectDeptListByRoleId" parameterType="Long" resultType="Integer">
+        select d.dept_id, d.parent_id
+        from sys_dept d
+                     left join sys_role_dept rd on d.dept_id = rd.dept_id
+        where rd.role_id = #{roleId}
+          and d.dept_id not in (select d.parent_id
+                                from sys_dept d
+                                             inner join sys_role_dept rd on d.dept_id = rd.dept_id and rd.role_id = #{roleId})
+        order by d.parent_id, d.order_num
+    </select>
+
+    <select id="selectDeptById" parameterType="Long" resultMap="SysDeptResult">
+        <include refid="selectDeptVo"/>
+        where dept_id = #{deptId}
+    </select>
+
+    <select id="checkDeptExistUser" parameterType="Long" resultType="int">
+        select count(1)
+        from sys_user
+        where dept_id = #{deptId}
+          and del_flag = '0'
+    </select>
+
+    <select id="hasChildByDeptId" parameterType="Long" resultType="int">
+        select count(1)
+        from sys_dept
+        where del_flag = '0'
+          and parent_id = #{deptId}
+    </select>
+
+    <select id="selectChildrenDeptById" parameterType="Long" resultMap="SysDeptResult">
+        select *
+        from sys_dept
+        where find_in_set(#{deptId}, ancestors)
+    </select>
+
+    <select id="selectNormalChildrenDeptById" parameterType="Long" resultType="int">
+        select count(*)
+        from sys_dept
+        where del_flag = '0'
+          and status = 0
+          and find_in_set(#{deptId}, ancestors)
+    </select>
+
+    <select id="checkDeptNameUnique" resultMap="SysDeptResult">
+        <include refid="selectDeptVo"/>
+        where dept_name = #{deptName}
+          and parent_id = #{parentId}
+          and dept_code = #{deptCode}
+          and del_flag = '0'
+    </select>
+
+    <insert id="insertDept" parameterType="SysDept">
+        insert into sys_dept(
+        <if test="deptId != null and deptId != 0">
+            dept_id,
+        </if>
+        <if test="deptType != null and deptType != 0">
+            dept_type,
+        </if>
+        <if test="type != null">
+            type,
+        </if>
+        <if test="deptCode != null">
+            dept_code,
+        </if>
+        <if test="parentId != null and parentId != 0">
+            parent_id,
+        </if>
+        <if test="deptName != null and deptName != ''">
+            dept_name,
+        </if>
+        <if test="deptPhone != null">
+            dept_phone,
+        </if>
+        <if test="ancestors != null and ancestors != ''">
+            ancestors,
+        </if>
+        <if test="orderNum != null and orderNum != ''">
+            order_num,
+        </if>
+        <if test="leader != null and leader != ''">
+            leader,
+        </if>
+        <if test="phone != null and phone != ''">
+            phone,
+        </if>
+        <if test="email != null and email != ''">
+            email,
+        </if>
+        <if test="province != null">
+            province,
+        </if>
+        <if test="city != null">
+            city,
+        </if>
+        <if test="district != null">
+            district,
+        </if>
+        <if test="address != null">
+            address,
+        </if>
+        <if test="status != null">
+            status,
+        </if>
+        <if test="createBy != null and createBy != ''">
+            create_by,
+        </if>
+        <if test="longitude != null and longitude != ''">longitude,</if>
+        <if test="latitude != null and latitude != ''">latitude,</if>
+        create_time)values(
+        <if test="deptId != null and deptId != 0">
+            #{deptId},
+        </if>
+        <if test="deptType != null and deptType != 0">
+            #{deptType},
+        </if>
+        <if test="type != null and type != 0">
+            #{type},
+        </if>
+        <if test="deptCode != null">
+            #{deptCode},
+        </if>
+        <if test="parentId != null and parentId != 0">
+            #{parentId},
+        </if>
+        <if test="deptName != null and deptName != ''">
+            #{deptName},
+        </if>
+        <if test="deptPhone != null">
+            #{deptPhone},
+        </if>
+        <if test="ancestors != null and ancestors != ''">
+            #{ancestors},
+        </if>
+        <if test="orderNum != null and orderNum != ''">
+            #{orderNum},
+        </if>
+        <if test="leader != null and leader != ''">
+            #{leader},
+        </if>
+        <if test="phone != null and phone != ''">
+            #{phone},
+        </if>
+        <if test="email != null and email != ''">
+            #{email},
+        </if>
+        <if test="province != null">
+            #{province},
+        </if>
+        <if test="city != null">
+            #{city},
+        </if>
+        <if test="district != null">
+            #{district},
+        </if>
+        <if test="address != null">
+            #{address},
+        </if>
+        <if test="status != null">
+            #{status},
+        </if>
+        <if test="createBy != null and createBy != ''">
+            #{createBy},
+        </if>
+        <if test="longitude != null and longitude != ''">#{longitude},</if>
+        <if test="latitude != null and latitude != ''">#{latitude},</if>
+        sysdate())
+    </insert>
+
+    <update id="updateDept" parameterType="SysDept">
+        update sys_dept
+        <set>
+            <if test="parentId != null and parentId != 0">
+                parent_id = #{parentId},
+            </if>
+            <if test="deptType != null and deptType != 0">
+                dept_type = #{deptType},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="deptCode != null">
+                dept_code = #{deptCode},
+            </if>
+            <if test="deptName != null and deptName != ''">
+                dept_name = #{deptName},
+            </if>
+            <if test="deptPhone != null">
+                dept_phone = #{deptPhone},
+            </if>
+            <if test="ancestors != null and ancestors != ''">
+                ancestors = #{ancestors},
+            </if>
+            <if test="orderNum != null and orderNum != ''">
+                order_num = #{orderNum},
+            </if>
+            <if test="leader != null">
+                leader = #{leader},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="province != null">
+                province = #{province},
+            </if>
+            <if test="city != null">
+                city = #{city},
+            </if>
+            <if test="district != null">
+                district = #{district},
+            </if>
+            <if test="address != null">
+                address = #{address},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="updateBy != null and updateBy != ''">
+                update_by = #{updateBy},
+            </if>
+            <if test="longitude != null and longitude != ''">longitude = #{longitude},</if>
+            <if test="latitude != null and latitude != ''">latitude = #{latitude},</if>
+            update_time = sysdate()
+        </set>
+        where dept_id = #{deptId}
+    </update>
+
+    <update id="updateDeptChildren" parameterType="java.util.List">
+        update sys_dept set ancestors =
+        <foreach collection="depts" item="item" index="index"
+                 separator=" " open="case dept_id" close="end">
+            when #{item.deptId} then #{item.ancestors}
+        </foreach>
+        where dept_id in
+        <foreach collection="depts" item="item" index="index"
+                 separator="," open="(" close=")">
+            #{item.deptId}
+        </foreach>
+    </update>
+
+    <update id="updateDeptStatus" parameterType="SysDept">
+        update sys_dept
+        <set>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="updateBy != null and updateBy != ''">
+                update_by = #{updateBy},
+            </if>
+            update_time = sysdate()
+        </set>
+        where dept_id in (${ancestors})
+    </update>
+
+    <delete id="deleteDeptById" parameterType="Long">
+        update sys_dept
+        set del_flag = '2'
+        where dept_id = #{deptId}
+    </delete>
+    <select id="countTotalNumByParentId" parameterType="Long" resultType="java.lang.Integer">
+        select ifnull(count(dept_id), 0)
+        from sys_dept
+        where del_flag = '0'
+          and status = '0'
+          and parent_id = #{deptId}
+    </select>
+    <select id="selectHeadCompanyId" resultType="java.lang.Long">
+        select dept_id
+        from sys_dept
+        where del_flag = '0'
+          and status = '0'
+          and parent_id = 0
+        limit 1
+    </select>
+
+    <select id="selectSubsidiaryCompanyList" parameterType="SysDept" resultType="java.util.Map">
+        select d.dept_id            as deptId,
+               d.parent_id          as parentId,
+               d.dept_name          as deptName,
+               d.dept_code          as deptCode,
+               d.dept_phone         as deptPhone,
+               d.province           as province,
+               d.city               as city,
+               d.district           as district,
+               d.address            as address,
+               d.leader             as leader,
+               d.phone              as leaderPhone,
+               d.email              as email,
+               d.type               as type,
+               d.status             as status,
+               d.order_num          as orderNum,
+               (SELECT ifnull(count(dept_id), 0)
+                FROM sys_dept
+                WHERE parent_id = d.dept_id
+                  and del_flag = '0'
+                  AND status = '0'
+                  AND type = 2) as shopNum,
+               d.create_time        as createTime
+        from sys_dept d
+                where d.del_flag = '0'
+                  AND status = '0'
+                  AND type = 1
+        <if test="parentId != null and parentId != 0">
+            AND parent_id = #{parentId}
+        </if>
+        <if test="deptType != null and deptType != 0">
+            AND dept_type = #{deptType}
+        </if>
+        <if test="deptName != null and deptName != ''">
+            AND (dept_name like concat('%', #{deptName}, '%') or dept_code like concat('%', #{deptName}, '%'))
+        </if>
+        <if test="deptPhone != null  and deptPhone != ''">
+            and dept_phone like concat('%', #{deptPhone}, '%')
+        </if>
+        <if test="leader != null  and leader != ''">
+            and (leader like concat('%', #{leader}, '%') or phone like concat('%', #{leader}, '%'))
+        </if>
+        <if test="province != null  and province != ''">
+            and province = #{province}
+        </if>
+        <if test="city != null  and city != ''">
+            and city = #{city}
+        </if>
+        <if test="district != null  and district != ''">
+            and district = #{district}
+        </if>
+        <if test="address != null  and address != ''">
+            and address like concat('%', #{address}, '%')
+        </if>
+        <!-- Data range filtering -->
+        ${params.dataScope}
+                order by d.parent_id, d.order_num
+    </select>
+    <select id="selectShopList" parameterType="SysDept" resultType="java.util.Map">
+        select d.dept_id     as                                             deptId,
+               d.parent_id   as                                             parentId,
+               (select dept_name from sys_dept where dept_id = d.parent_id) parentDeptName,
+               d.dept_name   as                                             deptName,
+               d.dept_code   as                                             deptCode,
+               d.dept_phone  as                                             deptPhone,
+               d.province    as                                             province,
+               d.city        as                                             city,
+               d.district    as                                             district,
+               d.address     as                                             address,
+               d.leader      as                                             leader,
+               d.phone       as                                             leaderPhone,
+               d.email       as                                             email,
+               d.type        as                                             type,
+               d.status      as                                             status,
+               d.dept_type   as                                             deptType,
+               d.create_time as                                             createTime
+        from sys_dept d
+                where d.del_flag = '0'
+                  AND status = '0'
+                  AND type = 2
+        <if test="parentId != null and parentId != 0">
+            AND parent_id = #{parentId}
+        </if>
+        <if test="deptType != null and deptType != 0">
+            AND dept_type = #{deptType}
+        </if>
+        <if test="deptName != null and deptName != ''">
+            AND (dept_name like concat('%', #{deptName}, '%') or dept_code like concat('%', #{deptName}, '%'))
+        </if>
+        <if test="deptPhone != null  and deptPhone != ''">
+            and dept_phone like concat('%', #{deptPhone}, '%')
+        </if>
+        <if test="leader != null  and leader != ''">
+            and (leader like concat('%', #{leader}, '%') or phone like concat('%', #{leader}, '%'))
+        </if>
+        <if test="province != null  and province != ''">
+            and province = #{province}
+        </if>
+        <if test="city != null  and city != ''">
+            and city = #{city}
+        </if>
+        <if test="district != null  and district != ''">
+            and district = #{district}
+        </if>
+        <if test="address != null  and address != ''">
+            and address like concat('%', #{address}, '%')
+        </if>
+        <!-- Data range filtering -->
+        ${params.dataScope}
+                order by d.parent_id, d.order_num
+    </select>
+    <select id="countEmployeesNumByDeptId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        SELECT count(user_id)
+        FROM sys_user
+        WHERE del_flag = '0'
+          AND dept_id IN (SELECT dept_id FROM sys_dept WHERE dept_id = #{deptId}
+                          union all
+                          SELECT dept_id FROM sys_dept WHERE find_in_set(#{deptId}, ancestors))
+          AND STATUS = '0'
+
+    </select>
+    <select id="selectDeptByCode" resultMap="SysDeptResult">
+        <include refid="selectDeptVo"/>
+        where dept_code = #{deptCode}
+          and del_flag = '0'
+        limit 1
+    </select>
+
+    <select id="checkDeptCodeUnique" resultMap="SysDeptResult">
+        <include refid="selectDeptVo"/>
+        where dept_code = #{deptCode}
+          and del_flag = '0'
+        limit 1
+    </select>
+    <!--Get a list of all stores-->
+    <select id="getAllShopList" resultType="java.util.Map">
+        select dept_id as deptId, dept_name as deptName
+        from sys_dept
+        where del_flag = '0'
+          and STATUS = '0'
+          AND type = 2
+    </select>
+
+    <!--Query the list of all branches Only the querydeptIdwithdeptName-->
+    <select id="getAllSubsidiaryCompanyList" resultMap="SysDeptResult">
+        select dept_id, dept_name
+        from sys_dept
+        where del_flag = '0'
+          and STATUS = '0'
+          AND type = 1
+    </select>
+    <!--Query all stores in branches-->
+    <select id="selectShopListByParentId" resultMap="SysDeptResult">
+        select dept_id, dept_name
+        from sys_dept
+        where del_flag = '0'
+          and STATUS = '0'
+          AND type = 2
+          and parent_id = #{deptId}
+    </select>
+
+    <!--According to theshopIdsQuery stores-->
+    <select id="selectDeptByIds" resultMap="SysDeptResult">
+        select dept_id,
+               dept_code,
+               parent_id,
+               ancestors,
+               dept_name,
+               dept_phone,
+               order_num,
+               leader,
+               phone,
+               email,
+               province,
+               city,
+               district,
+               address,
+               dept_type,
+               type,
+               status,
+               del_flag,
+               create_by,
+               create_time,
+               update_by,
+               update_time
+        from sys_dept
+        where dept_id in (${shopIds})
+          and del_flag = '0'
+          and status = '0'
+          and type = 2
+    </select>
+    <!--    According to the subsidiaryidQuery store list-->
+    <select id="getShopListByCompanyIds" resultMap="SysDeptResult">
+        select dept_id,
+               dept_code,
+               parent_id,
+               ancestors,
+               dept_name,
+               dept_phone,
+               order_num,
+               leader,
+               phone,
+               email,
+               province,
+               city,
+               district,
+               address,
+               dept_type,
+               type,
+               status,
+               del_flag,
+               create_by,
+               create_time,
+               update_by,
+               update_time
+        from sys_dept
+        where del_flag = '0'
+          and status = '0'
+          and type = 2
+          and parent_id in (${ids})
+    </select>
+    <!--    Obtain subsidiary data by month-->
+    <select id="getTotalCompanyNumByMonth" resultType="java.lang.Integer">
+        select ifnull(count(dept_id), 0)
+        from sys_dept
+        where del_flag = '0'
+          and status = '0'
+          and type = 1
+          and DATE_FORMAT(create_time, '%Y-%m') = #{month}
+    </select>
+    <!--Obtain the number of stores by month-->
+    <select id="getTotalShopNumByMonth" resultType="java.lang.Integer">
+        select ifnull(count(dept_id), 0)
+        from sys_dept
+        where del_flag = '0'
+          and status = '0'
+          and type = 2
+          and DATE_FORMAT(create_time, '%Y-%m') = #{month}
+    </select>
+
+    <!--   Number of stores-->
+    <select id="getTotalShopNum" resultType="java.lang.Integer">
+        select ifnull(count(dept_id), 0)
+        from sys_dept
+        where del_flag = '0'
+          and status = '0'
+          and type = 2
+    </select>
+    <!--    Number of subsidiaries-->
+    <select id="getTotalCompanyNum" resultType="java.lang.Integer">
+        select ifnull(count(dept_id), 0)
+        from sys_dept
+        where del_flag = '0'
+          and status = '0'
+          and type = 1
+    </select>
+    <!--    Query the list of all subsidiaries-Dividing data Permissions-->
+    <select id="getSubsidiaryCompanyList" parameterType="SysDept" resultMap="SysDeptResult">
+        select d.dept_id, d.dept_name
+        from sys_dept d
+        where del_flag = '0'
+          and STATUS = '0'
+          AND type = 1
+        ${params.dataScope}
+    </select>
+</mapper>

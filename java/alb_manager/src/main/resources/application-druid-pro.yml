@@ -1,0 +1,58 @@
+# Data Source Configuration
+spring:
+    datasource:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        druid:
+            # Master library data source123.56.228.87
+            master:
+                url: jdbc:mysql://39.101.66.18:3306/vacation_data?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+                username: root
+                password: 123456
+#                password: p@s5w0rd
+            # Slave data source
+            slave:
+                # Slave data source switch/Off by default
+                enabled: false
+                url: 
+                username: 
+                password: 
+            # Initial connection number
+            initialSize: 5
+            # Minimum number of connection pools
+            minIdle: 10
+            # Maximum number of connection pools
+            maxActive: 20
+            # The timeout period for obtaining connections is set
+            maxWait: 60000
+            # How often does the configuration check occur,Detect idle connections that need to be closed,In milliseconds
+            timeBetweenEvictionRunsMillis: 60000
+            # Sets the minimum time for a connection to live in the pool,In milliseconds
+            minEvictableIdleTimeMillis: 300000
+            # Configures the maximum lifetime of a connection in the pool,In milliseconds
+            maxEvictableIdleTimeMillis: 900000
+            # The configuration checks whether the connection is valid
+            validationQuery: SELECT 1 FROM DUAL
+            testWhileIdle: true
+            testOnBorrow: false
+            testOnReturn: false
+            webStatFilter: 
+                enabled: true
+            statViewServlet:
+                enabled: true
+                # Setting a Whitelist,All access is allowed if you leave it blank
+                allow:
+                url-pattern: /druid/*
+                # The console manages user names and passwords
+                login-username: renbowen
+                login-password: renbowen
+            filter:
+                stat:
+                    enabled: true
+                    # slowSQLrecord
+                    log-slow-sql: true
+                    slow-sql-millis: 1000
+                    merge-sql: true
+                wall:
+                    config:
+                        multi-statement-allow: true

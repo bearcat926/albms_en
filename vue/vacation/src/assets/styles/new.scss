@@ -1,0 +1,116 @@
+$color:#4860FB;
+$radius:2px;
+$bbcolor:#EAEDFF;
+$fontColor:#A6ABCC;
+$hr:#EAEDFF;
+// .el-button--primary {
+//     background-color: $color!important;
+//     border-color: $color!important
+// }
+.el-button--medium {
+    border-radius: $radius!important;
+}
+
+.el-dialog__title {
+    font-weight: bold;
+}
+
+.el-dialog__header {
+    border-bottom: 1px solid $bbcolor!important;
+}
+
+.el-pagination.is-background .el-pager li:not(.disabled).active {
+    background-color: $color;
+}
+
+.el-checkbox__inner {
+    border-radius: 50%;
+}
+
+// /deep/.underB {
+//     color: #4860fb !important;
+//     text-decoration: underline !important;
+// }
+/deep/.headerColor {
+    color: #a6abcc !important;
+    background: #f6f8ff;
+}
+
+/deep/.el-table__row--striped {
+    background-color: #fcfcff !important;
+    td {
+        background-color: transparent !important;
+    }
+}
+
+@mixin leftShu($left, $height) {
+    position: relative;
+    padding-left: $left;
+    &::before {
+        content: "";
+        left: 0;
+        position: absolute;
+        display: block;
+        width: 2px;
+        top: calc(50% - (#{$height} / 2));
+        height: $height;
+        background: #eaedff;
+    }
+}
+
+.title_box {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    // font-weight: 700 ;
+    padding-bottom: 1em;
+    .name {
+        margin-right: 1.6rem;
+    }
+}
+
+.info_box {
+    .info_title {
+        position: relative;
+        font-size: 0.9rem;
+        color: $fontColor;
+        margin-bottom: 1.76rem;
+        &::before {
+            content: "";
+            left: 12%;
+            position: absolute;
+            display: block;
+            width: 88%;
+            top: calc(50% - 0.5px);
+            height: 0;
+            border: 1px dashed $hr;
+        }
+    }
+    .info_title1 {
+        &::before {
+            left: 7%;
+            width: 93%;
+        }
+    }
+    .info_index {
+        color: #0D1444;
+        margin-bottom: 1.24rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        p {
+            display: inline-block;
+            min-width: 5em;
+            text-align: right;
+        }
+        span {
+            color: $fontColor;
+            font-weight: normal;
+        }
+    }
+    .shopName {
+        font-size: 0.82rem;
+        color: #4860FB;
+        text-decoration: underline;
+        margin: 0 0.6rem;
+    }
+}

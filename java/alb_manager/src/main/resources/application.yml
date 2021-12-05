@@ -1,0 +1,7 @@
+spring:
+  profiles:
+#    active: dev,druid-dev
+    #TODO On-line modification
+    active: pro,druid-pro
+    #TODO Docker
+#    active: compose ,druid-compose

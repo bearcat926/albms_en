@@ -1,0 +1,73 @@
+version: '3.9'
+services:
+  nginx:
+    container_name: vacation_nginx
+    image: nginx
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - vacation
+    volumes:
+      - /root/volumes/nginx/html:/usr/share/nginx/html
+      - /root/volumes/nginx/conf:/etc/nginx/conf.d
+      - /root/volumes/nginx/logs:/var/log/nginx
+    networks:
+      vacation_net:
+        aliases:
+          - vacation_nginx
+    restart: always
+  vacation:
+    container_name: vacation_web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+    - /root/volumes/web/uploadPath:/usr/local/vacation/uploadPath
+    - /root/volumes/web/logs:/usr/local/vacation/logs
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      vacation_net:
+        aliases:
+          - vacation_web
+    restart: always
+  mysql:
+    container_name: vacation_mysql
+    image: mysql:5.7
+    ports:
+      - "33068:33068"
+    volumes:
+      - /root/volumes/mysql/data:/var/lib/mysql
+      - /root/volumes/mysql/conf:/etc/mysql/conf.d
+      - /root/volumes/mysql/init:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: p@s5w0rd
+      MYSQL_DATABASE: vacation_data
+    networks:
+      vacation_net:
+        aliases:
+          - vacation_mysql
+    restart: always
+  redis:
+    container_name: vacation_redis
+    image: redis
+    ports:
+      - "63799:63799"
+    volumes:
+      - /root/volumes/redis/data:/data
+      - /root/volumes/redis/conf/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      vacation_net:
+        aliases:
+          - vacation_redis
+    restart: always
+networks:
+  vacation_net:
+#volumes:
+#configs:

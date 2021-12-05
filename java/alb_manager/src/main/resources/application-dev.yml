@@ -1,0 +1,134 @@
+# Development Environment Configuration
+server:
+  # The server'sHTTPport,The default is8080
+  port: 8080
+  servlet:
+    # Application access path
+    context-path: /
+  tomcat:
+    # tomcattheURIcoding
+    uri-encoding: UTF-8
+    # tomcatMaximum number of threads,The default is200
+    max-threads: 800
+    # TomcatNumber of threads that started initialization,The default value25
+    min-spare-threads: 30
+
+# The log configuration
+logging:
+  level:
+    alb: debug
+    org.springframework: warn
+
+# Springconfiguration
+spring:
+  # Resource information
+  messages:
+    # Internationalization resource file path
+    basename: i18n/messages
+  profiles:
+    active: druid
+  # File upload
+  servlet:
+    multipart:
+      # Single file size
+      max-file-size: 10MB
+      # Set the total uploaded file size
+      max-request-size: 20MB
+  # Service module
+  devtools:
+    restart:
+      # Hot deployment switch
+      enabled: true
+  # redis configuration
+  redis:
+    # address
+    host: 127.0.0.1
+    # port,The default is6379
+    port: 6379
+    # password
+    password:
+    # Connection timeout
+    timeout: 10s
+    lettuce:
+      pool:
+        # Minimum free connection in connection pool
+        min-idle: 0
+        # Maximum number of free connections in the connection pool
+        max-idle: 8
+        # The maximum number of database connections in the connection pool
+        max-active: 8
+        # #Maximum waiting time for connection pool blocking(Using negative values means there is no limit)
+        max-wait: -1ms
+
+# Incoming pool queue consumer acceptance cycle(seconds)
+incomingPool:
+  delay: 10
+
+# tokenconfiguration
+token:
+  # Token custom identification
+  header: Authorization
+  # The token key
+  secret: Renbowen
+  # Token validity(The default30minutes)
+  expireTime: 30
+
+# MyBatisconfiguration
+mybatis:
+  # Searches for the specified package alias
+  typeAliasesPackage: alb.project.**.domain
+  # configurationmapperThe scan,Find allmapper.xmlThe mapping file
+  mapperLocations: classpath*:mybatis/**/*Mapper.xml
+  # Load the global configuration file
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+# PageHelperPaging plug-in
+pagehelper:
+  helperDialect: mysql
+  #  reasonable: true
+  #  supportMethodsArguments: true
+  params: count=countSql
+  offsetAsPageNum: false
+  rowBoundsWithCount: false
+  pageSizeZero: true
+  reasonable: false
+  supportMethodsArguments: false
+
+# Swaggerconfiguration
+swagger:
+  # Whether openswagger
+  enabled: false
+  # Request the prefix
+  pathMapping: /dev-api
+
+# To preventXSSattack
+xss:
+  # Filter switch
+  enabled: false
+  # Rule out links(Separate multiple entries with commas)
+  excludes: /system/notice/*
+  # Match the link
+  urlPatterns: /system/*,/monitor/*,/tool/*,/vacation/*
+
+# Configure plaintext password encryption for files
+#jasypt:
+#  encryptor:
+#    password: Renbowen # Custom encryption key
+#    property:
+#      prefix: Renbowen( # User-defined encryption prefix
+#      suffix: ) # Customize encryption suffixes
+#    bean: codeSheepEncryptorBean # Custom encryptor
+
+# Aliyun SMS template
+aliyunSms:
+  templateRegist: SMS_148375326 # registered
+  templateUpdatePassword: SMS_148375325 # Change the password
+  templateInformationChange: SMS_148375324 # Information changes
+  templateAuthentication: SMS_148375329 # The authentication
+  templateLoginVerify: SMS_148375328 # The login confirmation
+  templateLoginException: SMS_148375327 # Abnormal login
+
+# Let seven stranger
+
+# H5Share links
+shareUrl: https://mini.milido.cn/api/page?sourceType=
