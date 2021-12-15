@@ -249,8 +249,6 @@ public class HolidayController extends BaseController {
                 .currentApprovedIndex(holiday.getCurrentApprovedIndex())
                 .build();
         if (this.holidayApprovalService.hasNextApproved(params) && holiday.getStatus() == 1) {
-            holiday.setCurrentApprovedIndex(holiday.getCurrentApprovedIndex() + 1);
-            holiday.setStatus(0);
             HolidayItem newHolidayItem = HolidayItem.builder()
                     .holidayId(holiday.getHolidayId())
                     .approvedUserId(holiday.getCurrentApproverId())
@@ -259,6 +257,9 @@ public class HolidayController extends BaseController {
                     .delFlag(0)
                     .build();
             this.holidayItemService.insert(newHolidayItem);
+
+            holiday.setCurrentApprovedIndex(holiday.getCurrentApprovedIndex() + 1);
+            holiday.setStatus(0);
         }
         // rejected / There's no next node
         int count = this.holidayService.update(holiday);
